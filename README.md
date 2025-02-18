@@ -38,12 +38,17 @@ StockMatrix is a powerful stock market screening application built with **Python
 ### Backend (Django)
 
 1. Clone the repository:
-   ```sh
+   ```
    https://github.com/codeMaestro78/StockMatrix.git
    cd StockMatrix/backend_stockmatrix     
    cd StockMatrix/frontend_stockmatrix
 
    ```
+2. Apply database migrations:
+    ```
+    python manage.py migrate
+
+    ```
 
 🚀 Future Improvements
 AI-Powered Stock Predictions 📈
@@ -56,3 +61,5 @@ Mutual Fund Performance Tracker 📌
 Multi-User Dashboard & Custom Watchlists 📋
 Technical Indicators Expansion 📈
 Mobile App Version 📱
+
+
