@@ -1,0 +1,6 @@
+node_modules
+.env
+venv
+backend_stockmatrix\.env
+backend_stockmatrix\venv
+

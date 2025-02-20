@@ -1,0 +1,463 @@
+/* General styles */
+.stock-search-container {
+  width: 80%;
+  margin: auto;
+  padding: 20px;
+  text-align: center;
+}
+
+.stock-input {
+  width: 60%;
+  padding: 10px;
+  margin-right: 10px;
+  font-size: 16px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  border-radius: 20px;
+}
+
+.stock-input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+  outline: none;
+}
+
+.search-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease, color 0.3s ease;
+}
+
+.search-button:hover {
+  background-color: #340346;
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  color: #e0e0e0;
+}
+
+.search-button:disabled {
+  background-color: #ccc;
+}
+
+.error {
+  color: red;
+  font-size: 18px;
+  animation: shake 0.5s ease forwards;
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(0); }
+  75% { transform: translateX(5px); }
+  100% { transform: translateX(0); }
+}
+
+.stock-details {
+  margin-top: 20px;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: slideInFade 1s ease forwards;
+}
+
+@keyframes slideInFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stock-info-table, .financials-table, .analyst-table , .technical-indicators-heading{
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid #ddd;
+  overflow: hidden;
+}
+
+.stock-info-table tr:hover, .financials-table tr:hover, .analyst-table tr:hover, .technical-indicators-heading tr:hover{
+  background-color: #f5f5f5;
+  transform: scale(1.02);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+.technical-indicators-heading
+{
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+h1 {
+  color: #333;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+h2 {
+  color: #333;
+  padding: 10px 20px;
+  background-color: #ddd; /* Light gray background */
+  border-radius: 25px; /* Curved border */
+  border: 2px solid #007bff; /* Border color matching theme */
+  transition: color 0.3s ease, transform 0.3s ease, background-color 0.3s ease;
+  overflow: hidden;
+}
+h2:hover {
+  background-color: #ccc; /* Darker gray on hover */
+  transform: scale(1.05); /* Slight scaling */
+}
+
+@keyframes bounceIn {
+  0% { transform: scale(0.9); opacity: 0; }
+  50% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+.financials-heading, .analyst-heading, .analysis-heading, .stock-info-heading, .technical-indicators-heading {
+  font-size: 1.5rem;
+  color: #007bff;
+  border-bottom: 2px solid #007bff;
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+  transition: color 0.3s ease, transform 0.3s ease;
+  animation: bounceIn 1s ease;
+  text-align: center;
+}
+
+.financials-heading:hover, .analyst-heading:hover, .analysis-heading:hover, .stock-info-heading:hover .technical-indicators-heading:hover{
+  color: #0056b3;
+  transform: scale(1.05);
+}
+
+.analysis-content {
+  font-size: 1rem;
+  color: #333;
+  margin-top: 10px;
+  line-height: 1.6;
+}
+
+.stock-chart {
+  max-width: 100%;
+  height: auto;
+  transition: transform 0.5s ease, opacity 0.5s ease, filter 0.5s ease;
+  animation: zoomInRotate 1s ease-out forwards, shadowPulse 2s infinite;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes zoomInRotate {
+  0% {
+    transform: scale(0.9) rotate(0deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05) rotate(10deg);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+@keyframes shadowPulse {
+  0% {
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.5);
+  }
+  100% {
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.stock-chart:hover {
+  transform: scale(1.1) rotate(5deg);
+  opacity: 0.9;
+  filter: brightness(1.2);
+  box-shadow: 0px 12px 24px rgba(0, 0, 0, 0.4);
+}
+
+.stock-chart:hover {
+  border: 2px solid #007bff;
+}
+
+.stock-info-company {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 400px;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+  animation: fadeIn 1s ease-out;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stock-info-company p {
+  font-size: 1rem;
+  color: #333;
+  margin: 10px 0;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.stock-info-company strong {
+  color: #007bff;
+  transition: color 0.3s ease;
+}
+
+.stock-info-company:hover {
+  transform: scale(1.05);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.25);
+  background-color: #f8f9fa;
+}
+
+.stock-info-company p:hover {
+  color: #0056b3;
+  transform: translateX(5px);
+}
+
+.stock-info-company strong:hover {
+  color: #004085;
+}
+
+/* Basic styling for the forecast table */
+.forecast-heading {
+  font-size: 1.5em;
+  margin-top: 20px;
+  color: #007bff;
+}
+
+.forecast-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.forecast-table, .forecast-table th, .forecast-table td {
+  border: 1px solid #ddd;
+}
+
+.forecast-table th, .forecast-table td {
+  padding: 12px;
+  text-align: left;
+}
+
+.forecast-table th {
+  background-color: #f4f4f4;
+  color: #333;
+}
+
+/* Animation for table rows */
+.forecast-table tr {
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+/* Hover effect for table rows */
+.forecast-table tr:hover {
+  background-color: #e0f7fa;
+  transform: scale(1.02);
+}
+
+/* Fade-in animation for table rows on load */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.forecast-table tr {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+
+.technical-indicators-heading {
+  color: #007bff;
+  padding: 10px 20px;
+  background-color: #ddd; /* Light gray background */
+  border-radius: 25px; /* Curved border */
+  border: 2px solid #007bff; /* Border color matching theme */
+  transition: color 0.3s ease, transform 0.3s ease, background-color 0.3s ease;
+  max-width: 100%; /* Ensure the heading doesn't overflow its container */
+  box-sizing: border-box; /* Include padding and border in the element's total width and height */
+  overflow: hidden; /* Prevent content overflow */
+  text-overflow: ellipsis; /* Add ellipsis if text overflows */
+  white-space: nowrap; /* Prevent text wrapping */
+}
+
+/* Hover effect for heading */
+.technical-indicators-heading:hover {
+  background-color: #ccc; /* Darker gray on hover */
+  transform: scale(1.05); /* Slight scaling */
+}
+
+
+/* Technical Indicators Table */
+.technical-indicators-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  animation: tableFadeIn 1s ease-out forwards;
+  transition: all 0.3s ease; /* Smooth transition */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+.technical-indicators-table th, .technical-indicators-table td {
+  padding: 12px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+.technical-indicators-table th {
+  background-color: #f4f4f4;
+  color: #333;
+}
+
+.technical-indicators-table tr:hover {
+  background-color: #e0f7fa; /* Light blue on hover */
+  transform: scale(1.02); /* Slight scaling */
+}
+
+/* Fade-in animation for the table */
+@keyframes tableFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.technical-indicators-table tr:hover {
+  background-color: #f1f1f1; 
+  transform: scale(1.02); 
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2); 
+}
+
+
+.sentiment-heading {
+  font-size: 1.5em;
+  color: #007bff;
+  margin-bottom: 10px;
+}
+
+.sentiment-content {
+  font-size: 1.2em;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+li {
+  margin: 10px 0;
+  padding: 10px;
+  border-radius: 5px;
+  background: #f4f4f4;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+li:hover {
+  transform: translateX(10px);
+  background-color: #e1e1e1;
+}
+
+li a {
+  text-decoration: none;
+  color: #000;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+li a:hover {
+  color: #0056b3;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+li {
+  animation: slideIn 0.5s ease-out;
+}
+.download-button {
+  background-color: #007bff; /* Green color */
+  color: #fff;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  margin: 5px;
+  transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+  outline: none;
+}
+
+.download-button:hover {
+  background-color: #340346; /* Darker green color on hover */
+  transform: translateY(-2px); /* Slight lift effect */
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3); /* Enhanced shadow on hover */
+}
+
+.download-button:active {
+  background-color: #1e7e34; /* Even darker green when clicked */
+  transform: translateY(0); /* Reset lift effect */
+  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.2); /* Smaller shadow when clicked */
+}
+
+.download-button:focus {
+  outline: 3px solid #1e7e34; /* Focus outline */
+  outline-offset: 2px;
+}
+
+.download-button:disabled {
+  background-color: #c3e6cb; /* Light green for disabled state */
+  color: #6c757d;
+  cursor: not-allowed;
+  box-shadow: none; /* No shadow for disabled state */
+}
+
+.spinner-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+

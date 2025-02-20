@@ -1,0 +1,120 @@
+.footer {
+  background-color: #222831; /* Darker shade for a modern look */
+  color: #f2a365; /* Soft orange for text */
+  padding: 30px 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.3); /* Subtle shadow for depth */
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 15px;
+}
+
+.footer-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  animation: fadeInUp 1.2s ease-in-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.footer-logo h2 {
+  font-size: 28px;
+  margin: 0;
+  color: #eeeeee; /* Light grey for logo text */
+  animation: logoGlow 2s infinite alternate;
+}
+
+@keyframes logoGlow {
+  from {
+    text-shadow: 0px 0px 5px #f2a365;
+  }
+  to {
+    text-shadow: 0px 0px 20px #f2a365, 0px 0px 30px #f2a365;
+  }
+}
+
+.footer-links {
+  display: flex;
+  gap: 25px;
+  margin: 20px 0;
+}
+
+.footer-links a {
+  color: #00adb5; /* Soft teal for links */
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s ease, transform 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.footer-links a::before {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 3px;
+  background-color: #f2a365;
+  bottom: 0;
+  left: -100%;
+  transition: left 0.4s ease;
+}
+
+.footer-links a:hover {
+  color: #f2a365;
+  transform: scale(1.1);
+}
+
+.footer-links a:hover::before {
+  left: 0;
+}
+
+.footer-social {
+  display: flex;
+  gap: 25px;
+}
+
+.footer-social a {
+  color: #eeeeee;
+  text-decoration: none;
+  font-size: 20px;
+  transition: transform 0.4s ease, color 0.3s ease;
+}
+
+.footer-social a:hover {
+  transform: rotate(10deg) scale(1.2);
+  color: #f2a365;
+}
+
+.footer-bottom {
+  margin-top: 25px;
+  font-size: 16px;
+  color: #eeeeee;
+  animation: slideIn 1.5s ease-in-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

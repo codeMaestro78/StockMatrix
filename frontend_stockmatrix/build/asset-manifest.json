@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/static/css/main.df67e888.css",
+    "main.js": "/static/js/main.839205ab.js",
+    "static/js/453.ffa35b7c.chunk.js": "/static/js/453.ffa35b7c.chunk.js",
+    "static/media/Stockmatrix.png": "/static/media/Stockmatrix.739e0ca9dc26cf105ae7.png",
+    "index.html": "/index.html",
+    "main.df67e888.css.map": "/static/css/main.df67e888.css.map",
+    "main.839205ab.js.map": "/static/js/main.839205ab.js.map",
+    "453.ffa35b7c.chunk.js.map": "/static/js/453.ffa35b7c.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.df67e888.css",
+    "static/js/main.839205ab.js"
+  ]
+}
