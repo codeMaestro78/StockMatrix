@@ -34,37 +34,20 @@ class StockView(APIView):
             if not symbol.endswith('.NS') and not symbol.endswith('.BO'):
                 symbol += '.NS'
 
-            # Enhanced retry mechanism with exponential backoff and jitter
-            max_retries = 5  # Increased from 3 to 5
-            base_delay = 2
+            # Retry mechanism with exponential backoff
+            max_retries = 3
             for attempt in range(max_retries):
                 try:
-                    # Add delay before each retry (except first attempt)
-                    if attempt > 0:
-                        delay = base_delay * (2 ** attempt) + np.random.uniform(0, 1)
-                        time.sleep(delay)
-                    
                     stock = yf.Ticker(symbol)
-                    # First try to get basic info
                     stock_info = stock.info
-                    # Then get historical data
                     df = stock.history(period="1y")
-                    
                     if df.empty:
                         return Response({'error': 'No data found for the symbol'}, status=status.HTTP_404_NOT_FOUND)
                     break
-                except requests.exceptions.HTTPError as e:
-                    if "429" in str(e) and attempt < max_retries - 1:
-                        continue
-                    elif "429" in str(e):
-                        return Response(
-                            {'error': 'Rate limit exceeded. Please try again in a few minutes.'},
-                            status=status.HTTP_429_TOO_MANY_REQUESTS
-                        )
-                    else:
-                        raise
-                except Exception as e:
+                except (ValueError, requests.exceptions.HTTPError) as e:
                     if attempt < max_retries - 1:
+                        wait = 2 ** attempt  # Exponential backoff
+                        time.sleep(wait)
                         continue
                     else:
                         raise
@@ -128,16 +111,13 @@ class StockView(APIView):
                     blob = TextBlob(title)
                     sentiment_scores.append(blob.sentiment.polarity)
 
-
             average_sentiment = np.mean(sentiment_scores) if sentiment_scores else 'N/A'
 
             # Response Data
-
             stock_data = {
                 'stock': {
                     'currentPrice': stock_info.get('currentPrice', 'N/A'),
                     'previousClose': stock_info.get('regularMarketPreviousClose', 'N/A'),
-                    
                     # Include other fields as needed...
                 },
                 'graph': image_base64,
@@ -180,9 +160,3 @@ class StockView(APIView):
             return Response({'error': 'Invalid data received', 'details': str(val_err)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({'error': 'An unexpected error occurred', 'details': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-
-
-
-            
