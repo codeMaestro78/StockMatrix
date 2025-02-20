@@ -361,6 +361,7 @@ const SIPCalculator = () => {
                   <XAxis dataKey="name" />
                   <YAxis />
                   <Tooltip />
+                  
                   <Bar dataKey="value" fill="#8884d8" />
                 </BarChart>
               </ResponsiveContainer>
