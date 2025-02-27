@@ -47,7 +47,7 @@ StockMatrix is a powerful stock market screening application built with **Python
 2. Apply database migrations:
     ```
     python manage.py migrate
-
+    python manage.py runserver
     ```
 
 🚀 Future Improvements
