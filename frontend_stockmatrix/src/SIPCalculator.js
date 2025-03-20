@@ -1,374 +1,426 @@
 import React, { useState, useEffect } from "react";
+import "./CSS_SIPCalculator.css";
 import {
-  BarChart,
-  Bar,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
   Tooltip,
-  ResponsiveContainer,
   Legend,
-  Area,
-  AreaChart,
-} from "recharts";
-import "./CSS_Calculator.css";
+  BarElement,
+} from "chart.js";
+import { Line, Bar } from "react-chartjs-2";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const SIPCalculator = () => {
-  const [formData, setFormData] = useState({
-    investmentType: "monthly",
-    monthlyInvestment: "",
-    oneTimeInvestment: "",
-    expectedReturn: "",
-    duration: "",
-    inflationRate: "",
-    taxRate: "",
-    riskLevel: "moderate",
-  });
+  // State variables for input fields
+  const [monthlyInvestment, setMonthlyInvestment] = useState(5000);
+  const [annualReturn, setAnnualReturn] = useState(12);
+  const [timePeriod, setTimePeriod] = useState(10);
+  const [inflationRate, setInflationRate] = useState(6);
+  const [results, setResults] = useState(null);
+  const [chartData, setChartData] = useState(null);
+  const [comparisonData, setComparisonData] = useState(null);
 
-  const [results, setResults] = useState({
-    futureValue: null,
-    investmentValue: null,
-    totalReturns: null,
-    inflationAdjustedValue: null,
-    taxableAmount: null,
-    monthlyWithdrawal: null,
-  });
+  // Calculate SIP returns
+  const calculateSIP = () => {
+    const monthlyRate = annualReturn / 12 / 100;
+    const months = timePeriod * 12;
+    const monthlyInflationRate = inflationRate / 12 / 100;
 
-  const [chartData, setChartData] = useState([]);
-  const [comparisonData, setComparisonData] = useState([]);
-  const [showAdvancedOptions, setShowAdvancedOptions] = useState(false);
+    let futureValue = 0;
+    let totalInvestment = 0;
+    let yearlyData = [];
+    let inflationAdjustedValue = 0;
 
-  // Risk-based return rates
-  const riskReturnRates = {
-    conservative: { min: 6, max: 8 },
-    moderate: { min: 8, max: 12 },
-    aggressive: { min: 12, max: 15 },
-  };
+    // Monthly calculation for accurate results
+    for (let i = 1; i <= months; i++) {
+      totalInvestment += monthlyInvestment;
+      futureValue = (futureValue + monthlyInvestment) * (1 + monthlyRate);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+      // Calculate inflation-adjusted value
+      const inflationFactor = Math.pow(1 + monthlyInflationRate, i);
+      inflationAdjustedValue = futureValue / inflationFactor;
 
-  const calculateMonthlySIP = (P, r, n, inflation, tax) => {
-    const i = r / 100 / 12;
-    const infl = inflation / 100 / 12;
-    const fv = (P * (((1 + i) ** n - 1) * (1 + i))) / i;
-    const v_i = P * n;
-    const inflationAdjustedValue = fv / (1 + infl) ** n;
-    const taxableAmount = (fv - v_i) * (tax / 100);
-    const monthlyWithdrawal = fv / (n * 12);
-
-    return {
-      futureValue: fv,
-      investmentValue: v_i,
-      totalReturns: fv - v_i,
-      inflationAdjustedValue,
-      taxableAmount,
-      monthlyWithdrawal,
-    };
-  };
-
-  const calculateOneTime = (P, r, n, inflation, tax) => {
-    const i = r / 100 / 12;
-    const infl = inflation / 100 / 12;
-    const fv = P * (1 + i) ** (n * 12);
-    const inflationAdjustedValue = fv / (1 + infl) ** n;
-    const taxableAmount = (fv - P) * (tax / 100);
-    const monthlyWithdrawal = fv / (n * 12);
-
-    return {
-      futureValue: fv,
-      investmentValue: P,
-      totalReturns: fv - P,
-      inflationAdjustedValue,
-      taxableAmount,
-      monthlyWithdrawal,
-    };
-  };
-
-  const generateDetailedChartData = (P, r, n, inflation) => {
-    const i = r / 100 / 12;
-    const infl = inflation / 100 / 12;
-    let data = [];
-    let fv = 0;
-    let investedAmount = 0;
-
-    for (let month = 1; month <= n; month++) {
-      if (formData.investmentType === "monthly") {
-        investedAmount += P;
-        fv += P * (1 + i) ** month;
-      } else {
-        investedAmount = P;
-        fv = P * (1 + i) ** month;
+      // Store yearly data for chart
+      if (i % 12 === 0) {
+        const year = i / 12;
+        yearlyData.push({
+          year,
+          investment: totalInvestment,
+          returns: futureValue - totalInvestment,
+          totalValue: futureValue,
+          inflationAdjustedValue,
+        });
       }
-
-      const inflationAdjustedValue = fv / (1 + infl) ** month;
-
-      data.push({
-        month,
-        projectedValue: parseFloat(fv.toFixed(2)),
-        investedAmount: parseFloat(investedAmount.toFixed(2)),
-        inflationAdjustedValue: parseFloat(inflationAdjustedValue.toFixed(2)),
-      });
     }
-    return data;
+
+    // Calculate wealth gained and absolute return
+    const wealthGained = futureValue - totalInvestment;
+    const absoluteReturn = (wealthGained / totalInvestment) * 100;
+
+    setResults({
+      totalInvestment,
+      futureValue,
+      wealthGained,
+      absoluteReturn,
+      inflationAdjustedValue,
+      yearlyData,
+    });
+
+    // Prepare chart data
+    prepareChartData(yearlyData);
+    prepareComparisonData(yearlyData);
   };
 
-  const generateComparisonData = () => {
-    const conservative = calculateMonthlySIP(
-      parseFloat(formData.monthlyInvestment || formData.oneTimeInvestment),
-      riskReturnRates.conservative.max,
-      parseInt(formData.duration),
-      parseFloat(formData.inflationRate),
-      parseFloat(formData.taxRate)
-    ).futureValue;
-
-    const aggressive = calculateMonthlySIP(
-      parseFloat(formData.monthlyInvestment || formData.oneTimeInvestment),
-      riskReturnRates.aggressive.max,
-      parseInt(formData.duration),
-      parseFloat(formData.inflationRate),
-      parseFloat(formData.taxRate)
-    ).futureValue;
-
-    return [
-      { name: "Conservative", value: conservative },
-      { name: "Current Plan", value: results.futureValue },
-      { name: "Aggressive", value: aggressive },
-    ];
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const {
-      investmentType,
-      monthlyInvestment,
-      oneTimeInvestment,
-      expectedReturn,
-      duration,
-      inflationRate,
-      taxRate,
-    } = formData;
-
-    const calculationResults =
-      investmentType === "monthly"
-        ? calculateMonthlySIP(
-            parseFloat(monthlyInvestment),
-            parseFloat(expectedReturn),
-            parseInt(duration),
-            parseFloat(inflationRate),
-            parseFloat(taxRate)
-          )
-        : calculateOneTime(
-            parseFloat(oneTimeInvestment),
-            parseFloat(expectedReturn),
-            parseInt(duration),
-            parseFloat(inflationRate),
-            parseFloat(taxRate)
-          );
-
-    setResults(calculationResults);
-    setChartData(
-      generateDetailedChartData(
-        parseFloat(monthlyInvestment || oneTimeInvestment),
-        parseFloat(expectedReturn),
-        parseInt(duration),
-        parseFloat(inflationRate)
-      )
+  // Prepare data for the growth chart
+  const prepareChartData = (yearlyData) => {
+    const labels = yearlyData.map((data) => `Year ${data.year}`);
+    const investmentData = yearlyData.map((data) => data.investment);
+    const returnsData = yearlyData.map((data) => data.returns);
+    const inflationAdjustedData = yearlyData.map(
+      (data) => data.inflationAdjustedValue
     );
-    setComparisonData(generateComparisonData());
+
+    setChartData({
+      labels,
+      datasets: [
+        {
+          label: "Total Investment",
+          data: investmentData,
+          backgroundColor: "rgba(54, 162, 235, 0.5)",
+          borderColor: "rgba(54, 162, 235, 1)",
+          borderWidth: 1,
+        },
+        {
+          label: "Returns",
+          data: returnsData,
+          backgroundColor: "rgba(75, 192, 192, 0.5)",
+          borderColor: "rgba(75, 192, 192, 1)",
+          borderWidth: 1,
+        },
+        {
+          label: "Inflation-Adjusted Value",
+          data: inflationAdjustedData,
+          backgroundColor: "rgba(255, 159, 64, 0.5)",
+          borderColor: "rgba(255, 159, 64, 1)",
+          borderWidth: 1,
+          borderDash: [5, 5],
+        },
+      ],
+    });
+  };
+
+  // Prepare data for the comparison chart
+  const prepareComparisonData = (yearlyData) => {
+    const lastYearData = yearlyData[yearlyData.length - 1];
+
+    setComparisonData({
+      labels: ["Investment vs. Returns"],
+      datasets: [
+        {
+          label: "Total Investment",
+          data: [lastYearData.investment],
+          backgroundColor: "rgba(54, 162, 235, 0.7)",
+        },
+        {
+          label: "Wealth Gained",
+          data: [lastYearData.returns],
+          backgroundColor: "rgba(75, 192, 192, 0.7)",
+        },
+        {
+          label: "Inflation-Adjusted Value",
+          data: [lastYearData.inflationAdjustedValue],
+          backgroundColor: "rgba(255, 159, 64, 0.7)",
+        },
+      ],
+    });
+  };
+
+  // Calculate on initial render and when inputs change
+  useEffect(() => {
+    calculateSIP();
+  }, [monthlyInvestment, annualReturn, timePeriod, inflationRate]);
+
+  // Format currency
+  const formatCurrency = (amount) => {
+    if (amount >= 10000000) {
+      return `₹${(amount / 10000000).toFixed(2)} Cr`;
+    } else if (amount >= 100000) {
+      return `₹${(amount / 100000).toFixed(2)} Lac`;
+    } else if (amount >= 1000) {
+      return `₹${(amount / 1000).toFixed(2)}K`;
+    } else {
+      return `₹${amount.toFixed(2)}`;
+    }
   };
 
   return (
-    <div className="calculator-container">
-      <h2 className="calculator-title">Advanced SIP Calculator</h2>
+    <div className="sip-calculator-container">
+      <h1 className="calculator-title">SIP Calculator</h1>
+      <p className="calculator-description">
+        Calculate the potential returns on your Systematic Investment Plan (SIP)
+        with our easy-to-use calculator.
+      </p>
 
-      <form onSubmit={handleSubmit} className="calculator-form">
-        {/* Basic Options */}
-        <div className="form-section">
-          <h3>Basic Options</h3>
-          <div className="form-group">
-            <label>Investment Type:</label>
-            <select
-              name="investmentType"
-              value={formData.investmentType}
-              onChange={handleInputChange}
-            >
-              <option value="monthly">Monthly SIP</option>
-              <option value="one-time">One-Time Investment</option>
-            </select>
+      <div className="calculator-grid">
+        <div className="input-section">
+          <div className="input-group">
+            <label htmlFor="monthlyInvestment">Monthly Investment (₹)</label>
+            <input
+              type="number"
+              id="monthlyInvestment"
+              value={monthlyInvestment}
+              onChange={(e) => setMonthlyInvestment(Number(e.target.value))}
+              min="100"
+              max="1000000"
+            />
+            <input
+              type="range"
+              value={monthlyInvestment}
+              onChange={(e) => setMonthlyInvestment(Number(e.target.value))}
+              min="100"
+              max="100000"
+              step="100"
+              className="slider"
+            />
           </div>
 
-          {formData.investmentType === "monthly" ? (
-            <div className="form-group">
-              <label>Monthly Investment (₹):</label>
-              <input
-                type="number"
-                name="monthlyInvestment"
-                value={formData.monthlyInvestment}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-          ) : (
-            <div className="form-group">
-              <label>One-Time Investment (₹):</label>
-              <input
-                type="number"
-                name="oneTimeInvestment"
-                value={formData.oneTimeInvestment}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-          )}
+          <div className="input-group">
+            <label htmlFor="annualReturn">Expected Annual Return (%)</label>
+            <input
+              type="number"
+              id="annualReturn"
+              value={annualReturn}
+              onChange={(e) => setAnnualReturn(Number(e.target.value))}
+              min="1"
+              max="30"
+              step="0.1"
+            />
+            <input
+              type="range"
+              value={annualReturn}
+              onChange={(e) => setAnnualReturn(Number(e.target.value))}
+              min="1"
+              max="30"
+              step="0.5"
+              className="slider"
+            />
+          </div>
+
+          <div className="input-group">
+            <label htmlFor="timePeriod">Time Period (Years)</label>
+            <input
+              type="number"
+              id="timePeriod"
+              value={timePeriod}
+              onChange={(e) => setTimePeriod(Number(e.target.value))}
+              min="1"
+              max="40"
+            />
+            <input
+              type="range"
+              value={timePeriod}
+              onChange={(e) => setTimePeriod(Number(e.target.value))}
+              min="1"
+              max="40"
+              step="1"
+              className="slider"
+            />
+          </div>
+
+          <div className="input-group">
+            <label htmlFor="inflationRate">Expected Inflation Rate (%)</label>
+            <input
+              type="number"
+              id="inflationRate"
+              value={inflationRate}
+              onChange={(e) => setInflationRate(Number(e.target.value))}
+              min="0"
+              max="15"
+              step="0.1"
+            />
+            <input
+              type="range"
+              value={inflationRate}
+              onChange={(e) => setInflationRate(Number(e.target.value))}
+              min="0"
+              max="15"
+              step="0.5"
+              className="slider"
+            />
+          </div>
         </div>
 
-        {/* Advanced Options */}
-        <div className="form-section">
-          <h3>
-            Advanced Options
-            <button
-              type="button"
-              onClick={() => setShowAdvancedOptions(!showAdvancedOptions)}
-              className="toggle-button"
-            >
-              {showAdvancedOptions ? "Hide" : "Show"}
-            </button>
-          </h3>
-
-          {showAdvancedOptions && (
+        <div className="results-section">
+          {results && (
             <>
-              <div className="form-group">
-                <label>Risk Level:</label>
-                <select
-                  name="riskLevel"
-                  value={formData.riskLevel}
-                  onChange={handleInputChange}
-                >
-                  <option value="conservative">Conservative</option>
-                  <option value="moderate">Moderate</option>
-                  <option value="aggressive">Aggressive</option>
-                </select>
+              <div className="results-summary">
+                <div className="result-card">
+                  <h3>Total Investment</h3>
+                  <div className="result-value">
+                    {formatCurrency(results.totalInvestment)}
+                  </div>
+                </div>
+                <div className="result-card highlight">
+                  <h3>Future Value</h3>
+                  <div className="result-value">
+                    {formatCurrency(results.futureValue)}
+                  </div>
+                </div>
+                <div className="result-card">
+                  <h3>Wealth Gained</h3>
+                  <div className="result-value">
+                    {formatCurrency(results.wealthGained)}
+                  </div>
+                </div>
+                <div className="result-card">
+                  <h3>Absolute Return</h3>
+                  <div className="result-value">
+                    {results.absoluteReturn.toFixed(2)}%
+                  </div>
+                </div>
+                <div className="result-card">
+                  <h3>Inflation-Adjusted Value</h3>
+                  <div className="result-value">
+                    {formatCurrency(results.inflationAdjustedValue)}
+                  </div>
+                </div>
               </div>
 
-              <div className="form-group">
-                <label>Inflation Rate (%):</label>
-                <input
-                  type="number"
-                  name="inflationRate"
-                  value={formData.inflationRate}
-                  onChange={handleInputChange}
-                  step="0.1"
-                />
+              <div className="chart-container">
+                <h3>Growth Over Time</h3>
+                {chartData && (
+                  <Line
+                    data={chartData}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          position: "top",
+                        },
+                        tooltip: {
+                          callbacks: {
+                            label: function (context) {
+                              let label = context.dataset.label || "";
+                              if (label) {
+                                label += ": ";
+                              }
+                              if (context.parsed.y !== null) {
+                                label += formatCurrency(context.parsed.y);
+                              }
+                              return label;
+                            },
+                          },
+                        },
+                      },
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                          ticks: {
+                            callback: function (value) {
+                              return formatCurrency(value);
+                            },
+                          },
+                        },
+                      },
+                    }}
+                  />
+                )}
               </div>
 
-              <div className="form-group">
-                <label>Tax Rate (%):</label>
-                <input
-                  type="number"
-                  name="taxRate"
-                  value={formData.taxRate}
-                  onChange={handleInputChange}
-                  step="0.1"
-                />
+              <div className="chart-container">
+                <h3>Investment vs. Returns</h3>
+                {comparisonData && (
+                  <Bar
+                    data={comparisonData}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: {
+                          position: "top",
+                        },
+                        tooltip: {
+                          callbacks: {
+                            label: function (context) {
+                              let label = context.dataset.label || "";
+                              if (label) {
+                                label += ": ";
+                              }
+                              if (context.parsed.y !== null) {
+                                label += formatCurrency(context.parsed.y);
+                              }
+                              return label;
+                            },
+                          },
+                        },
+                      },
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                          ticks: {
+                            callback: function (value) {
+                              return formatCurrency(value);
+                            },
+                          },
+                        },
+                      },
+                    }}
+                  />
+                )}
               </div>
             </>
           )}
         </div>
+      </div>
 
-        <button type="submit" className="calculate-button">
-          Calculate
-        </button>
-      </form>
-
-      {results.futureValue && (
-        <div className="results-container">
-          <div className="results-grid">
-            <div className="result-item">
-              <h4>Future Value</h4>
-              <p>₹{results.futureValue.toFixed(2)}</p>
-            </div>
-            <div className="result-item">
-              <h4>Total Investment</h4>
-              <p>₹{results.investmentValue.toFixed(2)}</p>
-            </div>
-            <div className="result-item">
-              <h4>Total Returns</h4>
-              <p>₹{results.totalReturns.toFixed(2)}</p>
-            </div>
-            <div className="result-item">
-              <h4>Inflation Adjusted Value</h4>
-              <p>₹{results.inflationAdjustedValue.toFixed(2)}</p>
-            </div>
-            <div className="result-item">
-              <h4>Tax Payable</h4>
-              <p>₹{results.taxableAmount.toFixed(2)}</p>
-            </div>
-            <div className="result-item">
-              <h4>Monthly Withdrawal</h4>
-              <p>₹{results.monthlyWithdrawal.toFixed(2)}</p>
-            </div>
-          </div>
-
-          {/* Charts */}
-          <div className="charts-container">
-            <div className="chart-wrapper">
-              <h3>Investment Growth Over Time</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Area
-                    type="monotone"
-                    dataKey="projectedValue"
-                    stroke="#8884d8"
-                    fill="#8884d8"
-                    name="Projected Value"
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="investedAmount"
-                    stroke="#82ca9d"
-                    fill="#82ca9d"
-                    name="Invested Amount"
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="inflationAdjustedValue"
-                    stroke="#ffc658"
-                    fill="#ffc658"
-                    name="Inflation Adjusted"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-
-            <div className="chart-wrapper">
-              <h3>Investment Strategy Comparison</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={comparisonData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip />
-                  
-                  <Bar dataKey="value" fill="#8884d8" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        </div>
-      )}
+      <div className="calculator-info">
+        <h3>About SIP Calculator</h3>
+        <p>
+          A Systematic Investment Plan (SIP) allows you to invest a fixed amount
+          regularly in mutual funds or other investment vehicles. This
+          calculator helps you estimate the potential returns on your SIP
+          investments over time.
+        </p>
+        <h4>How it works:</h4>
+        <ul>
+          <li>
+            <strong>Monthly Investment:</strong> The fixed amount you plan to
+            invest each month.
+          </li>
+          <li>
+            <strong>Expected Annual Return:</strong> The estimated annual return
+            rate on your investments.
+          </li>
+          <li>
+            <strong>Time Period:</strong> The duration for which you plan to
+            continue your SIP.
+          </li>
+          <li>
+            <strong>Inflation Rate:</strong> The expected average inflation rate
+            over your investment period.
+          </li>
+        </ul>
+        <p>
+          <strong>Note:</strong> This calculator provides estimates based on the
+          inputs provided. Actual returns may vary based on market conditions
+          and other factors.
+        </p>
+      </div>
     </div>
   );
 };
